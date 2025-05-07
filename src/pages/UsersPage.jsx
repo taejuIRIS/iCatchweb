@@ -1,57 +1,113 @@
 // src/pages/UsersPage.jsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-
-const dummyUsers = [
-  { id: 1, nickname: "김태주", email: "xown0123@gmail.com", password: "●●●" },
-  { id: 2, nickname: "태주", email: "xown0124@gmail.com", password: "●●●" },
-  { id: 3, nickname: "태주태", email: "xown0125@gmail.com", password: "●●●●●●" },
-  { id: 4, nickname: "김수림", email: "tnfla2@gamail.com", password: "●●●●●●●●●" },
-  { id: 5, nickname: "변승준", email: "tmdwnsl@gmail.com", password: "●●●●●" },
-  { id: 6, nickname: "강태훈", email: "xognsxogns@gmail.com", password: "●●" },
-  { id: 7, nickname: "최서륜", email: "chltjfbs@gmail.com", password: "●●●●●●●●" },
-  { id: 8, nickname: "김정훈", email: "gpgpglaemfek@gmail.com", password: "●" },
-];
+import axios from "axios";
 
 const UsersPage = () => {
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const res = await axios.get("http://ceprj.gachon.ac.kr:60004/api/admin/users");
+      console.log("📥 사용자 데이터:", res.data.data); // 응답 구조 확인
+
+      if (res.data.success && Array.isArray(res.data.data)) {
+        const usersWithPassword = res.data.data.map((user, index) => ({
+          ...user,
+          password: "0000", // 더미 패스워드
+          tempId: index + 1,
+        }));
+        setUsers(usersWithPassword);
+      } else {
+        alert("사용자 정보를 불러오는 데 실패했습니다.");
+      }
+    } catch (err) {
+      alert("서버 연결 실패: " + err.message);
+    }
+  };
+
+  const handleDelete = async (userId) => {
+    if (!userId) {
+      alert("잘못된 사용자 ID입니다. 삭제할 수 없습니다.");
+      return;
+    }
+
+    const confirmed = window.confirm("정말로 이 사용자를 삭제하시겠습니까?");
+    if (!confirmed) return;
+
+    const token = localStorage.getItem("adminToken");
+    if (!token) {
+      alert("로그인 토큰이 없습니다. 다시 로그인 해주세요.");
+      return;
+    }
+
+    try {
+      const res = await axios.delete(
+        `http://ceprj.gachon.ac.kr:60004/api/admin/users?userId=${userId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (res.data.success) {
+        alert("삭제 성공: " + res.data.message);
+        setUsers(users.filter((user) => user.userId !== userId));
+      } else {
+        alert("삭제 실패: " + (res.data.message || "알 수 없는 오류"));
+      }
+    } catch (err) {
+      alert("서버 오류: " + err.message);
+    }
+  };
+
   return (
-    <>
-      <Wrapper>
-        <Title>사용자 관리</Title>
-        <Table>
-          <thead>
-            <tr>
-              <Th>USERID</Th>
-              <Th>NICKNAME</Th>
-              <Th>EMAIL</Th>
-              <Th>PASSWORD</Th>
-              <Th>ACTION</Th>
+    <Wrapper>
+      <Title>사용자 관리</Title>
+      <Table>
+        <thead>
+          <tr>
+            <Th>USERID</Th>
+            <Th>NICKNAME</Th>
+            <Th>EMAIL</Th>
+            <Th>PASSWORD</Th>
+            <Th>ACTION</Th>
+          </tr>
+        </thead>
+        <tbody>
+          {users.map((user) => (
+            <tr key={user.email}>
+              <Td>{user.tempId}</Td>
+              <Td>{user.userNickname}</Td>
+              <Td>{user.email}</Td>
+              <Td>{user.password}</Td>
+              <Td>
+                <DeleteButton
+                  onClick={() => {
+                    console.log("🗑 삭제 시도 대상:", user);
+                    handleDelete(user.userId);
+                  }}
+                >
+                  ✔ Delete
+                </DeleteButton>
+              </Td>
             </tr>
-          </thead>
-          <tbody>
-            {dummyUsers.map((user) => (
-              <tr key={user.id}>
-                <Td>{user.id}</Td>
-                <Td>{user.nickname}</Td>
-                <Td>{user.email}</Td>
-                <Td>{user.password}</Td>
-                <Td>
-                  <DeleteButton>
-                    <span>✔ Delete</span>
-                  </DeleteButton>
-                </Td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      </Wrapper>
-    </>
+          ))}
+        </tbody>
+      </Table>
+    </Wrapper>
   );
 };
 
 export default UsersPage;
 
-// 스타일 컴포넌트
+// ---------- Styled Components ----------
 const Wrapper = styled.div`
   padding: 40px 80px;
   background: #fff;

@@ -1,7 +1,7 @@
-// src/components/LoginModal.jsx
 import React, { useState } from "react";
 import styled from "styled-components";
-import Popup from "./Popup"; // ✅ 팝업 컴포넌트 import
+import axios from "axios";
+import Popup from "./Popup";
 import { useNavigate } from "react-router-dom";
 
 const LoginModal = ({ onClose }) => {
@@ -10,20 +10,41 @@ const LoginModal = ({ onClose }) => {
   const [popupVisible, setPopupVisible] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = () => {
-    const isSuccess = email === "admin@admin.com" && password === "1234"; // 임시 조건
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post(
+        "http://ceprj.gachon.ac.kr:60004/api/admin/login",
+        {
+          email: email,
+          password: password,
+        },
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
 
-    if (isSuccess) {
-      setPopupVisible(true);
-    } else {
-      alert("로그인 실패: 올바르지 않은 정보입니다");
+      const result = response.data;
+      const loginData = result?.data;
+
+      if (response.status === 200 && result.success && loginData?.token) {
+        // ✅ 토큰과 닉네임을 저장
+        localStorage.setItem("adminToken", loginData.token);
+        localStorage.setItem("adminNickname", loginData.userNickname);
+        setPopupVisible(true); // 팝업 띄우기
+      } else {
+        alert("로그인 실패: 서버 응답이 예상과 다릅니다.");
+      }
+    } catch (error) {
+      const message =
+        error.response?.data?.data?.message || "서버 연결에 실패했습니다.";
+      alert(`로그인 실패: ${message}`);
     }
   };
 
   const handlePopupOkay = () => {
     setPopupVisible(false);
-    onClose();
-    navigate("/users");
+    onClose(); // 모달 닫기
+    navigate("/users"); // 👉 로그인 성공 후 /users 이동
   };
 
   return (
@@ -38,7 +59,7 @@ const LoginModal = ({ onClose }) => {
 
             <Label>Email</Label>
             <Input
-              placeholder="a@a.com"
+              placeholder="admin@admin.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -167,8 +188,8 @@ const CloseButton = styled.button`
   border: none;
   cursor: pointer;
   z-index: 10;
-
   &:hover {
     color: #333;
   }
 `;
+
