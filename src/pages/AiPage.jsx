@@ -12,36 +12,45 @@ const AIPage = () => {
   const navigate = useNavigate();
 
   const handleModelChangeComplete = () => {
-    navigate("/model/versions");
+    navigate("/ai");
   };
 
   return (
     <Wrapper>
       <Section>
-        <PageTitle>AI 학습</PageTitle>
+        <SectionTitle>AI 학습</SectionTitle>
         <SubText>
-          YOLO 모델의 파라미터 설정과 학습을 통해 객체 탐지에 최적화된 모델을 생성합니다.
+          YOLO 모델의 파라미터 설정과 학습을 통해 객체 탐지에 최적화된 모델을
+          생성합니다.
         </SubText>
         <AILearning />
       </Section>
 
+      <Section>
+        <SectionTitle>성능 평가 그래프</SectionTitle>
+        <SubText>
+          현재까지 학습된 모델의 성능 평가 그래프를 확인하여 비교 분석할 수 있습니다.
+        </SubText>
+        <AIReports />
+      </Section>
+
       <FlexSection>
         <Column>
-          <SectionTitle>모델 교체</SectionTitle>
-          <SubText>현재 사용 중인 모델을 업로드한 모델로 교체합니다.</SubText>
-          <ModelChange onNavigateToVersion={handleModelChangeComplete} />
+        <SectionTitle>모델 교체</SectionTitle>
+        <SubText>현재 사용 중인 모델을 업로드한 모델로 교체합니다.</SubText>
+        <ModelChange onNavigateToVersion={handleModelChangeComplete} />
         </Column>
+
+
+
         <Column>
-          <SectionTitle>실시간 탐지 보고서 및 분석</SectionTitle>
-          <AIReports />
+        <SectionTitle>모델 버전 확인</SectionTitle>
+        <SubText>
+          현재 사용중인 모델 및 이전 모델의 버전을 확인 가능합니다.
+        </SubText>
+        <AiVersion />
         </Column>
       </FlexSection>
-
-      <Section>
-        <SectionTitle>모델 버전 확인</SectionTitle>
-        <SubText>현재 사용중인 모델 및 이전 모델의 버전을 확인 가능합니다.</SubText>
-        <AiVersion />
-      </Section>
     </Wrapper>
   );
 };
@@ -58,30 +67,6 @@ const Section = styled.section`
   margin-bottom: 60px;
 `;
 
-const FlexSection = styled.section`
-  display: flex;
-  justify-content: space-between;
-  gap: 40px;
-  padding: 0 80px;
-  margin-bottom: 60px;
-  flex-wrap: wrap;
-`;
-
-const Column = styled.div`
-  flex: 1 1 440px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  max-width: 500px;
-`;
-
-const PageTitle = styled.h1`
-  font-size: 36px;
-  font-weight: bold;
-  color: #242c31;
-  margin-bottom: 12px;
-`;
-
 const SectionTitle = styled.h2`
   font-size: 28px;
   font-weight: bold;
@@ -93,4 +78,19 @@ const SubText = styled.p`
   color: #757575;
   font-size: 16px;
   margin-bottom: 16px;
+`;
+const FlexSection = styled.section`
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+  padding: 0 140px;
+  margin-bottom: 60px;
+  flex-wrap: wrap;
+`;
+
+const Column = styled.div`
+  flex: 1 1 440px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 `;
