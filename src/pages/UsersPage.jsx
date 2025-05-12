@@ -1,4 +1,3 @@
-// src/pages/UsersPage.jsx
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import axios from "axios";
@@ -13,13 +12,12 @@ const UsersPage = () => {
   const fetchUsers = async () => {
     try {
       const res = await axios.get("http://ceprj.gachon.ac.kr:60004/api/admin/users");
-      console.log("📥 사용자 데이터:", res.data.data); // 응답 구조 확인
+      console.log("📥 사용자 데이터:", res.data.data);
 
       if (res.data.success && Array.isArray(res.data.data)) {
-        const usersWithPassword = res.data.data.map((user, index) => ({
+        const usersWithPassword = res.data.data.map((user) => ({
           ...user,
-          password: "0000", // 더미 패스워드
-          tempId: index + 1,
+          password: "0000",
         }));
         setUsers(usersWithPassword);
       } else {
@@ -32,7 +30,7 @@ const UsersPage = () => {
 
   const handleDelete = async (userId) => {
     if (!userId) {
-      alert("잘못된 사용자 ID입니다. 삭제할 수 없습니다.");
+      alert("잘못된 사용자 ID입니다.");
       return;
     }
 
@@ -83,7 +81,7 @@ const UsersPage = () => {
         <tbody>
           {users.map((user) => (
             <tr key={user.email}>
-              <Td>{user.tempId}</Td>
+              <Td>{user.userId ?? "-"}</Td>
               <Td>{user.userNickname}</Td>
               <Td>{user.email}</Td>
               <Td>{user.password}</Td>
@@ -91,7 +89,7 @@ const UsersPage = () => {
                 <DeleteButton
                   onClick={() => {
                     console.log("🗑 삭제 시도 대상:", user);
-                    handleDelete(user.userId);
+                    handleDelete(Number(user.userId)); // 숫자 변환 확실히!
                   }}
                 >
                   ✔ Delete
