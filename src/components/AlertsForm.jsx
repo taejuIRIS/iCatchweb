@@ -1,22 +1,44 @@
-// ✅ AlertsForm.jsx
 import React, { useState } from "react";
 import styled from "styled-components";
+import axios from "axios";
 
 const AlertsForm = ({ onClose, onSend }) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [target, setTarget] = useState("전체 사용자");
   const [showConfirm, setShowConfirm] = useState(false);
 
-  const handleFinalSend = () => {
-    const newNotification = {
-      id: Date.now(),
-      userId: 999,
-      nickname: target,
-      message: `${title ? title + ": " : ""}${content}`,
+  const handleFinalSend = async () => {
+    const payload = {
+      userId: 0, // 전체 사용자
+      cameraId: 103,
+      notificationType: "INFO",
+      title: title || "알림", // content는 백엔드에 전송 안함
     };
-    onSend?.(newNotification);
-    onClose?.();
+
+    try {
+      const res = await axios.post(
+        "http://ceprj.gachon.ac.kr:60004/api/admin/notifications",
+        payload,
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      if (res.data.success) {
+        const newNotification = {
+          userId: 0,
+          notificationType: "INFO",
+          title: payload.title,
+          createdAt: new Date().toISOString(),
+        };
+        onSend?.(newNotification);
+        onClose?.();
+      } else {
+        alert("전송 실패: " + res.data.message);
+      }
+    } catch (error) {
+      alert("에러 발생: " + error.message);
+    }
   };
 
   return (
@@ -40,18 +62,12 @@ const AlertsForm = ({ onClose, onSend }) => {
         </FormGroup>
 
         <FormGroup>
-          <Label>메시지</Label>
+          <Label>메시지 (내용)</Label>
           <Textarea
             placeholder="Write your content..."
             value={content}
             onChange={(e) => setContent(e.target.value)}
           />
-        </FormGroup>
-
-        <FormGroup>
-          <Select value={target} onChange={(e) => setTarget(e.target.value)}>
-            <option>전체 사용자</option>
-          </Select>
         </FormGroup>
 
         <SendButton onClick={() => setShowConfirm(true)}>Send</SendButton>
@@ -75,7 +91,7 @@ const AlertsForm = ({ onClose, onSend }) => {
 
 export default AlertsForm;
 
-// 💅 스타일 컴포넌트는 이전과 동일하며, Confirm 모달만 추가
+// 💅 스타일 컴포넌트 그대로 유지
 const Backdrop = styled.div`
   position: fixed;
   inset: 0;
@@ -157,15 +173,6 @@ const Textarea = styled.textarea`
   box-sizing: border-box;
 `;
 
-const Select = styled.select`
-  width: 100%;
-  padding: 10px 12px;
-  font-size: 14px;
-  border-radius: 8px;
-  border: 1px solid #d0d5dd;
-  box-sizing: border-box;
-`;
-
 const SendButton = styled.button`
   width: 100%;
   background: #6b4eff;
@@ -182,6 +189,7 @@ const SendButton = styled.button`
 `;
 
 const ConfirmBackdrop = styled(Backdrop)``;
+
 const ConfirmModal = styled.div`
   background: #fff;
   padding: 32px;
@@ -189,21 +197,25 @@ const ConfirmModal = styled.div`
   text-align: center;
   min-width: 360px;
 `;
+
 const PopupTitle = styled.h2`
   font-size: 18px;
   font-weight: bold;
   margin-bottom: 12px;
 `;
+
 const PopupDesc = styled.p`
   font-size: 14px;
   color: #667084;
   margin-bottom: 24px;
 `;
+
 const ModalActions = styled.div`
   display: flex;
   justify-content: space-between;
   gap: 16px;
 `;
+
 const CancelButton = styled.button`
   flex: 1;
   padding: 12px;
@@ -213,6 +225,7 @@ const CancelButton = styled.button`
   color: #344054;
   font-weight: 600;
 `;
+
 const ConfirmButton = styled.button`
   flex: 1;
   padding: 12px;

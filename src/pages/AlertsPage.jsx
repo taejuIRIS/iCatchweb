@@ -1,25 +1,51 @@
 // ✅ NotificationPage.jsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
+import axios from "axios";
 import AlertsForm from "../components/AlertsForm";
 
 export default function NotificationPage() {
-  const [notifications, setNotifications] = useState([
-    { id: 1, userId: 1, nickname: "김태주", message: "3/18 활동로그가 완료됐어요!" },
-    { id: 2, userId: 2, nickname: "태주", message: "3/18 활동로그가 완료됐어요!" },
-    { id: 3, userId: 3, nickname: "태주태", message: "강아지가 위험 구역에 들어갔어요!" },
-    { id: 4, userId: 4, nickname: "김수림", message: "고양이가 위험 구역에 들어갔어요!" },
-    { id: 5, userId: 1, nickname: "김태주", message: "3/17 활동로그가 완료됐어요!" },
-    { id: 6, userId: 2, nickname: "태주", message: "3/27 활동로그가 완료됐어요!" },
-    { id: 7, userId: 4, nickname: "김수림", message: "3/16 활동로그가 완료됐어요!" },
-    { id: 8, userId: 8, nickname: "김정훈", message: "아기가 위험해요! 119에 전화하세요!" }
-  ]);
-  const [selectedId, setSelectedId] = useState(null);
+  const [notifications, setNotifications] = useState([]);
+  const [selectedIndex, setSelectedIndex] = useState(null);
   const [showForm, setShowForm] = useState(false);
 
-  const handleDelete = () => {
-    setNotifications((prev) => prev.filter((n) => n.id !== selectedId));
-    setSelectedId(null);
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
+
+  const fetchNotifications = async () => {
+    try {
+      const res = await axios.get("http://ceprj.gachon.ac.kr:60004/api/admin/notifications");
+      if (res.data.success) {
+        setNotifications(res.data.data);
+      } else {
+        alert("알림 불러오기 실패: " + res.data.message);
+      }
+    } catch (error) {
+      console.error("알림 조회 에러:", error);
+    }
+  };
+
+  const handleDelete = async () => {
+    const userId = notifications[selectedIndex]?.userId;
+    if (!userId) return;
+
+    try {
+      const res = await axios.delete("http://ceprj.gachon.ac.kr:60004/api/admin/notifications", {
+        params: { userId },
+      });
+
+      if (res.data.success) {
+        alert("삭제 성공!");
+        fetchNotifications();
+      } else {
+        alert("삭제 실패: " + res.data.message);
+      }
+    } catch (err) {
+      alert("삭제 중 오류: " + err.message);
+    }
+
+    setSelectedIndex(null);
   };
 
   const handleSend = (newNotification) => {
@@ -37,40 +63,32 @@ export default function NotificationPage() {
         <Table>
           <thead>
             <tr>
-              <Th>USERID</Th>
-              <Th>ACTION</Th>
-              <Th>NICKNAME</Th>
-              <Th>NOTIFICATIONS</Th>
+              <Th>USER ID</Th>
+              <Th>TYPE</Th>
+              <Th>TITLE</Th>
+              <Th>DATE</Th>
             </tr>
           </thead>
           <tbody>
-            {notifications.map((n) => (
-              <tr key={n.id}>
+            {notifications.map((n, index) => (
+              <tr key={index}>
                 <Td>{n.userId}</Td>
-                <Td>
-                  <DeleteBtn onClick={() => setSelectedId(n.id)}>
-                    <img
-                      src="https://storage.googleapis.com/tagjs-prod.appspot.com/v1/LOuxGbbzNT/u639h6kh_expires_30_days.png"
-                      alt="delete"
-                    />
-                    Delete
-                  </DeleteBtn>
-                </Td>
-                <Td>{n.nickname}</Td>
-                <Td>{n.message}</Td>
+                <Td>{n.notificationType}</Td>
+                <Td>{n.title}</Td>
+                <Td>{formatDate(n.createdAt)}</Td>
               </tr>
             ))}
           </tbody>
         </Table>
       </Wrapper>
 
-      {selectedId !== null && (
+      {selectedIndex !== null && (
         <ModalBackdrop>
           <ModalBox>
             <PopupTitle>알림을 삭제하시겠습니까?</PopupTitle>
             <PopupMessage>알림 삭제 후 복구가 불가능합니다.</PopupMessage>
             <ModalActions>
-              <CancelButton onClick={() => setSelectedId(null)}>Cancel</CancelButton>
+              <CancelButton onClick={() => setSelectedIndex(null)}>Cancel</CancelButton>
               <ConfirmButton onClick={handleDelete}>Yes</ConfirmButton>
             </ModalActions>
           </ModalBox>
@@ -78,18 +96,23 @@ export default function NotificationPage() {
       )}
 
       {showForm && (
-        <AlertsForm
-          onClose={() => setShowForm(false)}
-          onSend={handleSend}
-        />
+        <AlertsForm onClose={() => setShowForm(false)} onSend={handleSend} />
       )}
     </>
   );
 }
 
-
-// 💅 Styled components는 동일하게 유지됩니다
-
+function formatDate(dateString) {
+  const d = new Date(dateString);
+  return d.toLocaleString("ko-KR", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+}
 
 const Wrapper = styled.div`
   padding: 40px 80px;
