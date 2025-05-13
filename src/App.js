@@ -4,7 +4,6 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import StartPage from "./pages/StartPage";
 import UsersPage from "./pages/UsersPage";
-import DevicesPage from "./pages/DevicesPage";
 import MonitoringPage from "./pages/MonitoringPage";
 import AiPage from "./pages/AiPage";
 import AlertsPage from "./pages/AlertsPage";
@@ -21,7 +20,6 @@ function AppWrapper() {
       <Routes>
         <Route path="/" element={<StartPage />} />
         <Route path="/users" element={<UsersPage />} />
-        <Route path="/devices" element={<DevicesPage />} />
         <Route path="/monitoring" element={<MonitoringPage />} />
         <Route path="/ai" element={<AiPage />} />
         <Route path="/alerts" element={<AlertsPage />} />

@@ -1,50 +1,59 @@
 // src/pages/MonitoringPage.jsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-
-const dummyDevices = [
-  { id: 1, name: "안방", nickname: "김태주", ip: "••••••01", status: "블랙스크린카메라" },
-  { id: 2, name: "주방", nickname: "김태주", ip: "••••••02", status: "블랙스크린" },
-  { id: 3, name: "거실", nickname: "김태주", ip: "••••••03", status: "카메라 ON" },
-  { id: 4, name: "집", nickname: "김수림", ip: "••••••04", status: "카메라 OFF" },
-  { id: 5, name: "안방", nickname: "변승준", ip: "••••••05", status: "카메라 ON" },
-];
+import axios from "axios";
 
 const MonitoringPage = () => {
+  const [devices, setDevices] = useState([]);
+
+  useEffect(() => {
+    const fetchDevices = async () => {
+      try {
+        const response = await axios.get("http://ceprj.gachon.ac.kr:60004/api/device/monitoring");
+        if (response.data.success) {
+          setDevices(response.data.data);
+        } else {
+          console.error("데이터 조회 실패:", response.data.message);
+        }
+      } catch (error) {
+        console.error("API 요청 실패:", error);
+      }
+    };
+
+    fetchDevices();
+  }, []);
+
   return (
-    <>
-      <Wrapper>
-        <Title>디바이스 모니터링</Title>
-        <Table>
-          <thead>
-            <tr>
-              <Th>DEVICE ID</Th>
-              <Th>CAM NAME</Th>
-              <Th>NICKNAME</Th>
-              <Th>IP</Th>
-              <Th>STATUS</Th>
+    <Wrapper>
+      <Title>디바이스 모니터링</Title>
+      <Table>
+        <thead>
+          <tr>
+            <Th>DEVICE ID</Th>
+            <Th>CAM NAME</Th>
+            <Th>NICKNAME</Th>
+            <Th>IP</Th>
+            <Th>STATUS</Th>
+          </tr>
+        </thead>
+        <tbody>
+          {devices.map((device) => (
+            <tr key={device.deviceId}>
+              <Td>{device.deviceId}</Td>
+              <Td>{device.cameraName}</Td>
+              <Td>{device.userName}</Td>
+              <Td>{device.deviceIp}</Td>
+              <Td>{device.deviceStatus ?? ""}</Td>
             </tr>
-          </thead>
-          <tbody>
-            {dummyDevices.map((device) => (
-              <tr key={device.id}>
-                <Td>{device.id}</Td>
-                <Td>{device.name}</Td>
-                <Td>{device.nickname}</Td>
-                <Td>{device.ip}</Td>
-                <Td>{device.status}</Td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      </Wrapper>
-    </>
+          ))}
+        </tbody>
+      </Table>
+    </Wrapper>
   );
 };
 
 export default MonitoringPage;
 
-// 스타일 컨트롤
 const Wrapper = styled.div`
   padding: 40px 80px;
   background: #fff;
