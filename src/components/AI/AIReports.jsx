@@ -56,6 +56,9 @@ const AIReports = () => {
   const [modelDir, setModelDir] = useState(null);
   const [images, setImages] = useState([]);
   const [hovered, setHovered] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+const [pendingDeleteModel, setPendingDeleteModel] = useState(null);
+
   const SERVER_URL = "http://ceprj.gachon.ac.kr:60004"; // 학과 서버 주소로 바꿔줘
   useEffect(() => {
     axios
@@ -84,35 +87,108 @@ const AIReports = () => {
 
   return (
     <FormBox>
-      <select onChange={(e) => setModelDir(e.target.value)}>
-        <option disabled selected value="">모델 선택</option>
-        {models.map((dir) => (
-          <option key={dir} value={dir}>{dir}</option>
+  <select onChange={(e) => setModelDir(e.target.value)}>
+    <option disabled selected value="">모델 선택</option>
+    {models.map((dir) => (
+      <option key={dir} value={dir}>{dir}</option>
+    ))}
+  </select>
+
+  {images.length > 0 && (
+    <>
+      <ImageGrid>
+        {images.map((img, idx) => (
+          <ChartContainer
+            key={img.name}
+            onMouseEnter={() => setHovered(idx)}
+            onMouseLeave={() => setHovered(null)}
+          >
+            <ChartImage
+              src={`${SERVER_URL}${img.url}`}
+              alt={img.name}
+              $isHovered={hovered === idx}
+            />
+            <Label>{img.name}</Label>
+            {hovered === idx && <Description>{img.desc}</Description>}
+          </ChartContainer>
         ))}
-      </select>
-  
-      {images.length > 0 && (
-        <ImageGrid>
-          {images.map((img, idx) => (
-            <ChartContainer
-              key={img.name}
-              onMouseEnter={() => setHovered(idx)}
-              onMouseLeave={() => setHovered(null)}
-            >
-              <ChartImage
-                src={`${SERVER_URL}${img.url}`}
-                alt={img.name}
-                $isHovered={hovered === idx}
-              />
-              <Label>{img.name}</Label>
-              {hovered === idx && <Description>{img.desc}</Description>}
-            </ChartContainer>
-          ))}
-        </ImageGrid>
-      )}
-    </FormBox>
+      </ImageGrid>
+
+      {/* ✅ 다운로드 버튼을 그리드 아래에 정가운데로 분리 */}
+ 
+
+      <ButtonWrapper>
+  <DownloadLink
+    href={`${SERVER_URL}/api/admin/ai/models/${modelDir}.pt`}
+    download
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    {modelDir}.pt 다운로드
+  </DownloadLink>
+
+  <DeleteButton
+  onClick={() => {
+    setPendingDeleteModel(modelDir);
+    setShowModal(true);
+  }}
+>
+  모델 삭제
+</DeleteButton>
+
+</ButtonWrapper>
+
+    </>
+  )}
+   {showModal && (
+  <Modal>
+    <ModalBox>
+      <h2>정말 삭제하시겠습니까?</h2>
+      <p>선택한 모델 "{pendingDeleteModel}"을(를) 삭제하면 복구할 수 없습니다.</p>
+      <div style={{ marginTop: "20px" }}>
+        <ModalButton
+          onClick={() => {
+            axios
+              .delete(`${SERVER_URL}/api/admin/ai/models/${pendingDeleteModel}`)
+              .then(() => {
+                alert("모델 삭제 완료");
+                setModelDir(null);
+                setImages([]);
+                setShowModal(false);
+                setPendingDeleteModel(null);
+                axios.get(`${SERVER_URL}/api/admin/ai/models`)
+                     .then((res) => setModels(res.data));
+              })
+              .catch((err) => {
+                alert("삭제 실패: " + err.response?.data?.message || err.message);
+                setShowModal(false);
+              });
+          }}
+        >
+          삭제 확인
+        </ModalButton>
+
+        <ModalButton
+          style={{ background: "#ddd", color: "#333", marginLeft: "10px" }}
+          onClick={() => {
+            setShowModal(false);
+            setPendingDeleteModel(null);
+          }}
+        >
+          취소
+        </ModalButton>
+      </div>
+    </ModalBox>
+  </Modal>
+)}
+</FormBox>
+
   );
+ 
+
 };
+
+
 
 export default AIReports;
 const FormBox = styled.div`
@@ -179,5 +255,90 @@ const Description = styled.p`
       opacity: 1;
       transform: translateY(0);
     }
+  }
+`;
+
+const ButtonWrapper = styled.div`
+  margin-top: 24px;
+  text-align: center;
+`;
+
+const DownloadLink = styled.a`
+  display: inline-block;
+  padding: 10px 18px;
+   background: #6b4eff;
+  color: white;
+  font-weight: 500;
+  font-size: 15px;
+  border-radius: 24px;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background: #5b40df;
+  }
+`;
+
+const DeleteButton = styled.button`
+  margin-left: 16px;
+  padding: 10px 18px;
+  background-color: #dc3545;
+  color: white;
+  font-weight: 500;
+  font-size: 15px;
+  border-radius: 24px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #b02a37;
+  }
+`;
+
+const Modal = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 16px;
+  z-index: 10; /* 적당한 z-index */
+`;
+
+const ModalBox = styled.div`
+  background: white;
+  padding: 10px;
+  border-radius: 16px;
+  width: 600px;
+  text-align: center;
+  box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.2);
+
+  h2 {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 12px;
+  }
+
+  p {
+    color: #475569;
+  }
+`;
+const ModalButton = styled.button`
+  margin-top: 20px;
+  padding: 10px 20px;
+  border: none;
+  background: #6b4eff;
+  color: white;
+  border-radius: 24px;
+  font-weight: bold;
+  cursor: pointer;
+
+  &:hover {
+    background: #5b40df;
   }
 `;

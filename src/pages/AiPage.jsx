@@ -29,7 +29,7 @@ const AIPage = () => {
       <Section>
         <SectionTitle>성능 평가 그래프</SectionTitle>
         <SubText>
-          현재까지 학습된 모델의 성능 평가 그래프를 확인하여 비교 분석할 수 있습니다.
+          현재까지 학습된 모델의 성능 평가 그래프를 확인하여 비교 분석하고 모델을 다운로드 및 삭제할 수 있습니다.
         </SubText>
         <AIReports />
       </Section>

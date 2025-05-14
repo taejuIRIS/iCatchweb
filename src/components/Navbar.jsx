@@ -27,16 +27,33 @@ const Navbar = () => {
       </Logo>
 
       <Menu>
-        {menu.map((item) => (
-          <MenuItem
-            key={item.label}
-            active={location.pathname === item.path}
-            onClick={() => navigate(item.path)}
-          >
-            {item.label}
-          </MenuItem>
-        ))}
-      </Menu>
+  {menu.map((item) =>
+    item.label === "AI 관리" ? (
+      <DropdownWrapper key={item.label}>
+        <MenuItem active={location.pathname.startsWith("/ai")}>
+          {item.label}
+        </MenuItem>
+        <DropdownMenu>
+          <DropdownItem onClick={() => navigate("/ai")}>
+            모델 관리
+          </DropdownItem>
+          <DropdownItem onClick={() => navigate("/aidata")}>
+            데이터 관리
+          </DropdownItem>
+        </DropdownMenu>
+      </DropdownWrapper>
+    ) : (
+      <MenuItem
+        key={item.label}
+        active={location.pathname === item.path}
+        onClick={() => navigate(item.path)}
+      >
+        {item.label}
+      </MenuItem>
+    )
+  )}
+</Menu>
+
 
       <LogoutButton onClick={handleLogout}>logout</LogoutButton>
     </Container>
@@ -94,5 +111,41 @@ const LogoutButton = styled.button`
 
   &:hover {
     background-color: #5c40e5;
+  }
+`;
+
+
+const DropdownWrapper = styled.div`
+  position: relative;
+  display: inline-block;
+
+  &:hover div {
+    display: block;
+  }
+`;
+
+const DropdownMenu = styled.div`
+  display: none;
+  position: absolute;
+  top: 28px;
+  left: 0;
+  background-color: white;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  z-index: 100;
+  min-width: 140px;
+  padding: 8px 0;
+`;
+
+const DropdownItem = styled.div`
+  padding: 10px 16px;
+  font-size: 14px;
+  color: #0f172a;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover {
+    background-color: #f3f4f6;
+    color: #6b4eff;
   }
 `;
