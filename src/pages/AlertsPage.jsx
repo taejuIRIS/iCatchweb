@@ -1,4 +1,3 @@
-// ✅ NotificationPage.jsx
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import axios from "axios";
@@ -6,8 +5,9 @@ import AlertsForm from "../components/AlertsForm";
 
 export default function NotificationPage() {
   const [notifications, setNotifications] = useState([]);
-  const [selectedIndex, setSelectedIndex] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     fetchNotifications();
@@ -26,31 +26,15 @@ export default function NotificationPage() {
     }
   };
 
-  const handleDelete = async () => {
-    const userId = notifications[selectedIndex]?.userId;
-    if (!userId) return;
-
-    try {
-      const res = await axios.delete("http://ceprj.gachon.ac.kr:60004/api/admin/notifications", {
-        params: { userId },
-      });
-
-      if (res.data.success) {
-        alert("삭제 성공!");
-        fetchNotifications();
-      } else {
-        alert("삭제 실패: " + res.data.message);
-      }
-    } catch (err) {
-      alert("삭제 중 오류: " + err.message);
-    }
-
-    setSelectedIndex(null);
-  };
-
   const handleSend = (newNotification) => {
     setNotifications((prev) => [newNotification, ...prev]);
   };
+
+  const totalPages = Math.ceil(notifications.length / itemsPerPage);
+  const currentData = notifications.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   return (
     <>
@@ -70,7 +54,7 @@ export default function NotificationPage() {
             </tr>
           </thead>
           <tbody>
-            {notifications.map((n, index) => (
+            {currentData.map((n, index) => (
               <tr key={index}>
                 <Td>{n.userId}</Td>
                 <Td>{n.notificationType}</Td>
@@ -80,24 +64,25 @@ export default function NotificationPage() {
             ))}
           </tbody>
         </Table>
+
+        {totalPages > 1 && (
+          <Pagination>
+            <PageButton onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1}>
+              ◀
+            </PageButton>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
+              <PageButton key={num} onClick={() => setCurrentPage(num)} active={num === currentPage}>
+                {num}
+              </PageButton>
+            ))}
+            <PageButton onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>
+              ▶
+            </PageButton>
+          </Pagination>
+        )}
       </Wrapper>
 
-      {selectedIndex !== null && (
-        <ModalBackdrop>
-          <ModalBox>
-            <PopupTitle>알림을 삭제하시겠습니까?</PopupTitle>
-            <PopupMessage>알림 삭제 후 복구가 불가능합니다.</PopupMessage>
-            <ModalActions>
-              <CancelButton onClick={() => setSelectedIndex(null)}>Cancel</CancelButton>
-              <ConfirmButton onClick={handleDelete}>Yes</ConfirmButton>
-            </ModalActions>
-          </ModalBox>
-        </ModalBackdrop>
-      )}
-
-      {showForm && (
-        <AlertsForm onClose={() => setShowForm(false)} onSend={handleSend} />
-      )}
+      {showForm && <AlertsForm onClose={() => setShowForm(false)} onSend={handleSend} />}
     </>
   );
 }
@@ -114,23 +99,21 @@ function formatDate(dateString) {
   });
 }
 
+// 스타일 정의는 기존과 동일하게 유지
 const Wrapper = styled.div`
   padding: 40px 80px;
   background: #fff;
 `;
-
 const Top = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
 `;
-
 const Title = styled.h1`
   font-size: 36px;
   font-weight: bold;
 `;
-
 const SendButton = styled.button`
   background: #c6c4ff;
   color: #6b4eff;
@@ -140,12 +123,10 @@ const SendButton = styled.button`
   border: none;
   cursor: pointer;
 `;
-
 const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
 `;
-
 const Th = styled.th`
   background: #6b4eff;
   color: white;
@@ -153,31 +134,35 @@ const Th = styled.th`
   padding: 12px;
   text-align: left;
 `;
-
 const Td = styled.td`
   padding: 12px;
   border-bottom: 1px solid #ddd;
   font-size: 14px;
   color: #242c31;
 `;
-
-const DeleteBtn = styled.button`
-  background-color: #c6c4ff;
-  border: none;
-  border-radius: 6px;
-  padding: 4px 8px;
+const Pagination = styled.div`
+  margin-top: 24px;
   display: flex;
-  align-items: center;
-  color: #6b4eff;
+  justify-content: center;
+  gap: 8px;
+`;
+const PageButton = styled.button`
+  padding: 6px 12px;
+  border: none;
+  background: ${(props) => (props.active ? "#6b4eff" : "#eee")};
+  color: ${(props) => (props.active ? "white" : "#333")};
   font-weight: bold;
+  border-radius: 4px;
   cursor: pointer;
-  img {
-    width: 20px;
-    height: 20px;
-    margin-right: 4px;
+  &:hover {
+    background: #6b4eff;
+    color: white;
+  }
+  &:disabled {
+    background: #ccc;
+    cursor: not-allowed;
   }
 `;
-
 const ModalBackdrop = styled.div`
   position: fixed;
   top: 0;
@@ -190,7 +175,6 @@ const ModalBackdrop = styled.div`
   align-items: center;
   z-index: 1000;
 `;
-
 const ModalBox = styled.div`
   background: #fff;
   padding: 32px;
@@ -198,25 +182,21 @@ const ModalBox = styled.div`
   min-width: 400px;
   text-align: center;
 `;
-
 const PopupTitle = styled.h2`
   font-size: 20px;
   font-weight: bold;
   margin-bottom: 12px;
 `;
-
 const PopupMessage = styled.p`
   color: #667084;
   font-size: 14px;
   margin-bottom: 24px;
 `;
-
 const ModalActions = styled.div`
   display: flex;
   justify-content: space-between;
   gap: 16px;
 `;
-
 const CancelButton = styled.button`
   flex: 1;
   padding: 12px;
@@ -226,7 +206,6 @@ const CancelButton = styled.button`
   color: #344054;
   font-weight: 600;
 `;
-
 const ConfirmButton = styled.button`
   flex: 1;
   padding: 12px;
