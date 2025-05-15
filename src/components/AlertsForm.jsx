@@ -10,7 +10,7 @@ const AlertsForm = ({ onClose, onSend }) => {
   const handleFinalSend = async () => {
     const payload = {
       userId: 0, // 전체 사용자
-      cameraId: 103,
+      cameraId: 109,
       notificationType: "INFO",
       title: title || "알림", // content는 백엔드에 전송 안함
     };

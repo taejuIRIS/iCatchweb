@@ -46,6 +46,8 @@ export const LoginButton = styled.button`
   border: none;
   border-radius: 48px;
   cursor: pointer;
+  z-index: 10;           // 다른 요소보다 위로
+  position: relative;    // z-index 적용 위해 필요
 `;
 
 export const LoginText = styled.span`
@@ -121,7 +123,7 @@ export const PageImage = styled.img`
   bottom: 0;
   right: 4vw;
   height: 95vh;
-  object-fit: contain;
+  object-fit: cover;
   z-index: 1;
   filter: drop-shadow(0px 12px 24px rgba(0, 0, 0, 0.12));
   align-self: flex-end;
