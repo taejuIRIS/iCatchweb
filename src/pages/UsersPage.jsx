@@ -17,7 +17,7 @@ const UsersPage = () => {
       if (res.data.success && Array.isArray(res.data.data)) {
         const usersWithPassword = res.data.data.map((user) => ({
           ...user,
-          password: "0000",
+          password: "●●●●●●●●●",
         }));
         setUsers(usersWithPassword);
       } else {
