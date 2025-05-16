@@ -1,18 +1,21 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import axios from "axios";
+import { useNavigate } from "react-router-dom"; // ✅ navigate 기능 추가
 
 const AlertsForm = ({ onClose, onSend }) => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
+  const navigate = useNavigate(); // ✅ 선언
 
   const handleFinalSend = async () => {
     const payload = {
       userId: 0, // 전체 사용자
       cameraId: 109,
       notificationType: "INFO",
-      title: title || "알림", // content는 백엔드에 전송 안함
+      title: title || "알림",
+      content: content || "", // ✅ content 포함 (백엔드에서 필요할 수 있음)
     };
 
     try {
@@ -32,18 +35,22 @@ const AlertsForm = ({ onClose, onSend }) => {
           createdAt: new Date().toISOString(),
         };
         onSend?.(newNotification);
-        onClose?.();
+        onClose?.(); // ✅ 모달 닫기
+        navigate("/alerts"); // ✅ 이동
       } else {
         alert("전송 실패: " + res.data.message);
       }
     } catch (error) {
       alert("에러 발생: " + error.message);
+    } finally {
+      setShowConfirm(false);
     }
   };
 
   return (
     <Backdrop>
       <Modal>
+        <CloseButton onClick={onClose}>×</CloseButton>
         <Brand>
           <BlackText>i</BlackText>
           <PurpleText>Catch</PurpleText>
@@ -235,4 +242,18 @@ const ConfirmButton = styled.button`
   color: white;
   font-weight: 600;
   cursor: pointer;
+`;
+const CloseButton = styled.button`
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: transparent;
+  font-size: 28px;
+  color: #888;
+  border: none;
+  cursor: pointer;
+  z-index: 10;
+  &:hover {
+    color: #333;
+  }
 `;
