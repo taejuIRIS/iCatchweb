@@ -115,6 +115,7 @@ const Modal = styled.div`
   border-radius: 30px;
   padding: 48px 40px 40px 40px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  position: relative; /* ✅ 추가 */
 `;
 
 const Brand = styled.div`
@@ -243,13 +244,14 @@ const ConfirmButton = styled.button`
   font-weight: 600;
   cursor: pointer;
 `;
+
 const CloseButton = styled.button`
   position: absolute;
   top: 20px;
   right: 20px;
   background: transparent;
-  font-size: 28px;
-  color: #888;
+  font-size: 24px;
+  color: #0f172a;
   border: none;
   cursor: pointer;
   z-index: 10;
@@ -257,3 +259,4 @@ const CloseButton = styled.button`
     color: #333;
   }
 `;
+
