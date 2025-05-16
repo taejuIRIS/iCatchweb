@@ -1,10 +1,11 @@
-// src/pages/MonitoringPage.jsx
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import axios from "axios";
 
 const MonitoringPage = () => {
   const [devices, setDevices] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     const fetchDevices = async () => {
@@ -23,6 +24,12 @@ const MonitoringPage = () => {
     fetchDevices();
   }, []);
 
+  const totalPages = Math.ceil(devices.length / itemsPerPage);
+  const currentData = devices.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   return (
     <Wrapper>
       <Title>디바이스 모니터링</Title>
@@ -37,7 +44,7 @@ const MonitoringPage = () => {
           </tr>
         </thead>
         <tbody>
-          {devices.map((device) => (
+          {currentData.map((device) => (
             <tr key={device.deviceId}>
               <Td>{device.deviceId}</Td>
               <Td>{device.cameraName}</Td>
@@ -48,6 +55,32 @@ const MonitoringPage = () => {
           ))}
         </tbody>
       </Table>
+
+      {totalPages > 1 && (
+        <Pagination>
+          <PageButton
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+          >
+            ◀
+          </PageButton>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
+            <PageButton
+              key={num}
+              onClick={() => setCurrentPage(num)}
+              active={num === currentPage}
+            >
+              {num}
+            </PageButton>
+          ))}
+          <PageButton
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+          >
+            ▶
+          </PageButton>
+        </Pagination>
+      )}
     </Wrapper>
   );
 };
@@ -81,4 +114,29 @@ const Th = styled.th`
 const Td = styled.td`
   padding: 12px;
   border-bottom: 1px solid #ddd;
+`;
+
+const Pagination = styled.div`
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+`;
+
+const PageButton = styled.button`
+  padding: 6px 12px;
+  border: none;
+  background: ${(props) => (props.active ? "#6b4eff" : "#eee")};
+  color: ${(props) => (props.active ? "white" : "#333")};
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  &:hover {
+    background: #6b4eff;
+    color: white;
+  }
+  &:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
 `;

@@ -15,7 +15,10 @@ const UsersPage = () => {
       console.log("📥 사용자 데이터:", res.data.data);
 
       if (res.data.success && Array.isArray(res.data.data)) {
-        const usersWithPassword = res.data.data.map((user) => ({
+        
+        const usersWithPassword = res.data.data
+        .filter((user) => user.email !== "admin@admin.com")
+        .map((user) => ({
           ...user,
           password: "●●●●●●●●●",
         }));
