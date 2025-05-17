@@ -6,7 +6,7 @@ import axios from "axios";
 const imageOrder = [
   {
     name: "F1 Curve",
-    src: "/`F1_curve.png",
+    src: "/F1_curve.png",
     desc:
       "Confidence threshold에 따른 F1 점수의 변화를 나타냅니다. " +
       "F1 점수는 정밀도(Precision)와 재현율(Recall)의 조화 평균으로, " +
@@ -36,7 +36,7 @@ const imageOrder = [
   },
   {
     name: "Labels Heatmap",
-    src: "/labels.png",
+    src: "/labels.jpg",
     desc:
       "클래스별 인스턴스 개수와 바운딩 박스 분포를 시각화한 히트맵입니다. " +
       "왼쪽 상단은 각 클래스의 데이터 개수를 보여주고, 나머지 그래프는 위치, 크기 분포를 확인할 수 있습니다. " +
@@ -59,10 +59,10 @@ const AIReports = () => {
   const [showModal, setShowModal] = useState(false);
 const [pendingDeleteModel, setPendingDeleteModel] = useState(null);
 
-  const SERVER_URL = "http://ceprj.gachon.ac.kr:60004"; // 학과 서버 주소로 바꿔줘
+  const SERVER_URL = "/api"; 
   useEffect(() => {
     axios
-      .get(`${SERVER_URL}/api/admin/ai/models`)
+      .get(`${SERVER_URL}/admin/ai/models`)
       .then((res) => setModels(res.data))
       .catch((err) => console.error("모델 리스트 로드 실패", err));
   }, []);
@@ -70,7 +70,7 @@ const [pendingDeleteModel, setPendingDeleteModel] = useState(null);
   useEffect(() => {
     if (!modelDir) return;
     axios
-      .get(`${SERVER_URL}/api/admin/ai/results?modelDir=${modelDir}`)
+      .get(`${SERVER_URL}/admin/ai/results?modelDir=${modelDir}`)
       .then((res) => {
         const merged = res.data.map((img) => {
           const found = imageOrder.find((item) => item.name === img.name);
@@ -104,7 +104,7 @@ const [pendingDeleteModel, setPendingDeleteModel] = useState(null);
             onMouseLeave={() => setHovered(null)}
           >
             <ChartImage
-              src={`${SERVER_URL}${img.url}`}
+              src={`${img.url}`}
               alt={img.name}
               $isHovered={hovered === idx}
             />
@@ -119,7 +119,7 @@ const [pendingDeleteModel, setPendingDeleteModel] = useState(null);
 
       <ButtonWrapper>
   <DownloadLink
-    href={`${SERVER_URL}/api/admin/ai/models/${modelDir}.pt`}
+    href={`${SERVER_URL}/admin/ai/models/${modelDir}.pt`}
     download
     target="_blank"
     rel="noopener noreferrer"
@@ -149,14 +149,14 @@ const [pendingDeleteModel, setPendingDeleteModel] = useState(null);
         <ModalButton
           onClick={() => {
             axios
-              .delete(`${SERVER_URL}/api/admin/ai/models/${pendingDeleteModel}`)
+              .delete(`${SERVER_URL}/admin/ai/models/${pendingDeleteModel}`)
               .then(() => {
                 alert("모델 삭제 완료");
                 setModelDir(null);
                 setImages([]);
                 setShowModal(false);
                 setPendingDeleteModel(null);
-                axios.get(`${SERVER_URL}/api/admin/ai/models`)
+                axios.get(`${SERVER_URL}/admin/ai/models`)
                      .then((res) => setModels(res.data));
               })
               .catch((err) => {
@@ -204,7 +204,7 @@ const FormBox = styled.div`
 
 const ImageGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(3, minmax(320px, 1fr));
   gap: 24px;
   margin-top: 2rem;
   width: 100%;

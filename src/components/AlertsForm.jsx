@@ -17,7 +17,7 @@ const AlertsForm = ({ onClose, onSend }) => {
 
     try {
       const res = await axios.post(
-        "http://ceprj.gachon.ac.kr:60004/api/admin/notifications",
+        "/api/admin/notifications",
         payload,
         {
           headers: { "Content-Type": "application/json" },

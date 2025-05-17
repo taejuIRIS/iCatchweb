@@ -13,7 +13,7 @@ const LoginModal = ({ onClose }) => {
   const handleLogin = async () => {
     try {
       const response = await axios.post(
-        "http://ceprj.gachon.ac.kr:60004/api/admin/login",
+        "/api/admin/login",
         {
           email: email,
           password: password,

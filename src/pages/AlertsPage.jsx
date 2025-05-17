@@ -15,7 +15,7 @@ export default function NotificationPage() {
 
   const fetchNotifications = async () => {
     try {
-      const res = await axios.get("http://ceprj.gachon.ac.kr:60004/api/admin/notifications");
+      const res = await axios.get("/api/admin/notifications");
       if (res.data.success) {
         setNotifications(res.data.data);
       } else {

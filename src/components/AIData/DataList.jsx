@@ -16,8 +16,8 @@ const DataList = () => {
   useEffect(() => {
   const url =
     selectedClass === "전체"
-      ? `${SERVER_URL}/api/admin/aidata/files?page=${page}&size=${size}`
-      : `${SERVER_URL}/api/admin/aidata/files/by-class?className=${selectedClass}&page=${page}&size=${size}`;
+      ? `${SERVER_URL}/admin/aidata/files?page=${page}&size=${size}`
+      : `${SERVER_URL}/admin/aidata/files/by-class?className=${selectedClass}&page=${page}&size=${size}`;
 
   axios
     .get(url)
@@ -29,11 +29,11 @@ const DataList = () => {
 }, [page, selectedClass]);
 
 
-  const SERVER_URL = "http://ceprj.gachon.ac.kr:60004";
+  const SERVER_URL = "/api";
 
   useEffect(() => {
     axios
-      .get(`${SERVER_URL}/api/admin/aidata/files?page=${page}&size=10`)
+      .get(`${SERVER_URL}/admin/aidata/files?page=${page}&size=10`)
       .then((res) => setData(res.data.files))
       .catch((err) => console.error("데이터 불러오기 실패", err));
   }, [page]);
@@ -55,7 +55,7 @@ const handleDelete = (filename) => {
   if (!window.confirm(`${filename} 파일을 삭제할까요?`)) return;
 
   axios
-    .delete(`${SERVER_URL}/api/admin/aidata/delete?name=${filename}`)
+    .delete(`${SERVER_URL}/admin/aidata/delete?name=${filename}`)
     .then(() => {
       alert("삭제 완료");
 
@@ -73,7 +73,7 @@ const handleUpload = (e) => {
   const formData = new FormData(e.target);
 
   axios
-    .post(`${SERVER_URL}/api/admin/aidata/upload`, formData)
+    .post(`${SERVER_URL}/admin/aidata/upload`, formData)
     .then(() => {
       alert("업로드 성공");
       setPage(1);
@@ -144,7 +144,7 @@ const handleUpload = (e) => {
                   onMouseLeave={() => setHovered(null)}
                 >
                   <Thumbnail
-                    src={`${SERVER_URL}/api/admin/aidata/download?type=images&name=${item.image}`}
+                    src={`${SERVER_URL}/admin/aidata/download?type=images&name=${item.image}`}
                     alt={item.image}
                   />
                   {hovered === item.image &&

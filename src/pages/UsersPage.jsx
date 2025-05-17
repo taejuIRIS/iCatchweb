@@ -13,7 +13,7 @@ const UsersPage = () => {
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.get("http://ceprj.gachon.ac.kr:60004/api/admin/users");
+      const res = await axios.get("/api/admin/users");
       console.log("📥 사용자 데이터:", res.data.data);
 
       if (res.data.success && Array.isArray(res.data.data)) {
@@ -41,7 +41,7 @@ const UsersPage = () => {
 
     try {
       const res = await axios.delete(
-        `http://ceprj.gachon.ac.kr:60004/api/admin/users?userId=${deleteTargetId}`,
+        `/api/admin/users?userId=${deleteTargetId}`,
         {
           headers: {
             "Content-Type": "application/json",

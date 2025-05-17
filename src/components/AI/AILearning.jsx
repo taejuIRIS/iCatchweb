@@ -4,7 +4,7 @@ import styled from "styled-components";
 import axios from "axios";
 
 const SIZE_OPTIONS = [320, 416, 512, 640, 800, 960];
-const SERVER_URL = "http://ceprj.gachon.ac.kr:60004";
+const SERVER_URL = "/api";
 
 const AILearning = ({ onFinish }) => {
   const [model, setModel] = useState("yolov8n");
@@ -25,7 +25,7 @@ useEffect(() => {
 
   const interval = setInterval(async () => {
     try {
-      const res = await axios.get(`${SERVER_URL}/api/admin/ai/train/logs`);
+      const res = await axios.get(`${SERVER_URL}/admin/ai/train/logs`);
       setLogs(res.data);
     } catch (err) {
       console.error("로그 로딩 실패", err);
@@ -39,7 +39,7 @@ useEffect(() => {
       useEffect(() => {
   const checkStatus = async () => {
     try {
-      const res = await axios.get(`${SERVER_URL}/api/admin/ai/train/status`);
+      const res = await axios.get(`${SERVER_URL}/admin/ai/train/status`);
       if (res.data.status === "TRAINING") {
         setIsTraining(true);
       }
@@ -67,7 +67,7 @@ useEffect(() => {
 
     setIsTraining(true);
     try {
-      const res = await axios.post(`${SERVER_URL}/api/admin/ai/train/start`, requestBody);
+      const res = await axios.post(`${SERVER_URL}/admin/ai/train/start`, requestBody);
 
       if (res.status === 200 && res.data.training === "true") {
         // 학습 시작 성공 → 상태 폴링
@@ -99,7 +99,7 @@ useEffect(() => {
 const pollTrainingStatus = () => {
   const interval = setInterval(async () => {
     try {
-      const res = await axios.get(`${SERVER_URL}/api/admin/ai/train/status`);
+      const res = await axios.get(`${SERVER_URL}/admin/ai/train/status`);
       if (res.data.status === "COMPLETED" || res.data.status === "IDLE" || res.data.status === "STOPPED") {
         clearInterval(interval);
         setIsTraining(false);
@@ -119,7 +119,7 @@ const pollTrainingStatus = () => {
 const handleStopTraining = async () => {
   setIsStopping(true);
   try {
-    const res = await axios.post(`${SERVER_URL}/api/admin/ai/train/stop`);
+    const res = await axios.post(`${SERVER_URL}/admin/ai/train/stop`);
     console.log("중단 응답", res); // ✅ 이거 추가
     setIsTraining(false);
     setLogs(prev => [...prev, "--- 학습 중단됨 ---"]);

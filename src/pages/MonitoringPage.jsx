@@ -10,7 +10,7 @@ const MonitoringPage = () => {
   useEffect(() => {
     const fetchDevices = async () => {
       try {
-        const response = await axios.get("http://ceprj.gachon.ac.kr:60004/api/device/monitoring");
+        const response = await axios.get("/api/device/monitoring");
         if (response.data.success) {
           setDevices(response.data.data);
         } else {
