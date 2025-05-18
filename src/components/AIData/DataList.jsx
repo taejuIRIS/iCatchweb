@@ -70,12 +70,59 @@ const handleDelete = (filename) => {
 
 const handleUpload = (e) => {
   e.preventDefault();
-  const formData = new FormData(e.target);
+  const formData = new FormData();
+
+  const imageFiles = e.target.image.files;
+  const labelFiles = e.target.label.files;
+
+  if (imageFiles.length !== labelFiles.length) {
+    alert("이미지와 라벨 수가 다릅니다.");
+    return;
+  }
+
+  for (let i = 0; i < imageFiles.length; i++) {
+    formData.append("image", imageFiles[i]);
+    formData.append("label", labelFiles[i]);
+  }
 
   axios
     .post(`${SERVER_URL}/admin/aidata/upload`, formData)
     .then(() => {
       alert("업로드 성공");
+      setPage(1);
+    })
+     .catch(err => {
+    if (err.response && err.response.status === 400) {
+      alert("잘못된 클래스 ID 포함: " + err.response.data.message);
+    } else {
+      alert("서버 오류: " + err.message);
+    }
+  });
+};
+
+const handleFolderUpload = (e) => {
+  e.preventDefault();
+  const formData = new FormData();
+
+  const imageFiles = document.getElementById("imageFolder").files;
+  const labelFiles = document.getElementById("labelFolder").files;
+
+  if (imageFiles.length === 0 || labelFiles.length === 0) {
+    alert("이미지와 라벨 폴더를 모두 선택해주세요.");
+    return;
+  }
+
+  for (let file of imageFiles) {
+    formData.append("image", file, file.webkitRelativePath);
+  }
+  for (let file of labelFiles) {
+    formData.append("label", file, file.webkitRelativePath);
+  }
+
+  axios
+    .post(`${SERVER_URL}/admin/aidata/upload`, formData)
+    .then(() => {
+      alert("폴더 업로드 성공");
       setPage(1);
     })
     .catch((err) => {
@@ -86,10 +133,47 @@ const handleUpload = (e) => {
 
   return (
     <div>
-      
+      <UploadWrapper>
        
+ <AllUploadBox>
+  <Uploadlabel>
+  <text>✓ 클래스 ID는 0~2의 정수만 허용되며, 각각 고양이(0), 개(1), 사람(2)을 의미합니다.
+</text>
+</Uploadlabel>
+  <UploadBox onSubmit={handleUpload}>
+    <UploadGroup>
+      <label >📜 이미지/라벨 파일 업로드</label>
+  
+      <label htmlFor="imageInput">이미지 파일</label>
+      <input id="imageInput" type="file" name="image" accept="image/*" multiple required />
+    </UploadGroup>
+    
+    <UploadGroup>
+      <label htmlFor="labelInput">라벨 파일</label>
+      <input id="labelInput" type="file" name="label" accept=".txt" multiple required />
+    </UploadGroup>
+    <UploadButton type="submit">파일 업로드</UploadButton>
+  </UploadBox>
+  
+<FolderUploadBox onSubmit={handleFolderUpload}>
+  <UploadGroup>
+  <label >📁 이미지/라벨 폴더 업로드</label>
+  
+    <label htmlFor="imageFolder">이미지 폴더</label>
+    <input id="imageFolder" type="file" name="image" webkitdirectory="true" directory="true" multiple required />
+  </UploadGroup>
+  <UploadGroup>
+    <label htmlFor="labelFolder">라벨 폴더</label>
+    <input id="labelFolder" type="file" name="label" webkitdirectory="true" directory="true" multiple required />
+  </UploadGroup>
+  <UploadButton type="submit">폴더 업로드</UploadButton>
+</FolderUploadBox>
+
+</AllUploadBox>
+
+
 <FilterUploadRow>
-  <FilterBox>
+ <FilterBox>
     <label htmlFor="classFilter">클래스 필터: </label>
     <select
       id="classFilter"
@@ -105,22 +189,8 @@ const handleUpload = (e) => {
       <option value="person">사람 (person)</option>
     </select>
   </FilterBox>
-
-  <UploadBox onSubmit={handleUpload}>
-    <UploadGroup>
-      <label htmlFor="imageInput">이미지 파일</label>
-      <input id="imageInput" type="file" name="image" accept="image/*" required />
-    </UploadGroup>
-    <UploadGroup>
-      <label htmlFor="labelInput">라벨 파일</label>
-      <input id="labelInput" type="file" name="label" accept=".txt" required />
-    </UploadGroup>
-    <UploadButton type="submit">업로드</UploadButton>
-  </UploadBox>
 </FilterUploadRow>
-
-  
-
+</UploadWrapper>
       <Table>
         <colgroup>
           <col style={{ width: "25%" }} />
@@ -231,7 +301,6 @@ const handleUpload = (e) => {
 export default DataList;
 
 const FilterBox = styled.div`
-  margin-bottom: 20px;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -285,6 +354,8 @@ const Thumbnail = styled.img`
 `;
 
 const Table = styled.table`
+  margin-top: 20px; // ✅ 여유 공간 확보
+
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
@@ -436,14 +507,7 @@ const DeleteButton = styled.button`
 `;
 
 
-const FilterUploadRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 20px;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-`;
+
 
 const UploadBox = styled.form`
   display: flex;
@@ -487,4 +551,54 @@ const UploadButton = styled.button`
   &:hover {
     background-color: #5c40e5;
   }
+`;
+const FolderUploadBox = styled.form`
+display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 6px 12px 4px 12px;
+  border: 1.5px solid #6b4eff;
+  border-radius: 8px;
+  background-color: #f9f9ff;
+  h4 {
+    color: #6b4eff;
+    margin: 0;
+    font-weight: 700;
+  }
+`;
+const UploadWrapper = styled.div`
+  margin-top: 60px; // ✅ 여유 공간 확보
+
+  position: relative;
+  min-height: 150px; // 공간 확보
+
+`;
+
+const Uploadlabel=  styled.div`
+
+ font-size: 13px;
+    font-weight: 450;
+    color: gray;
+    margin-bottom: 2px;
+`; 
+
+const FilterUploadRow = styled.div`
+
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap:10px;
+`; 
+
+const AllUploadBox = styled.div`
+
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 `;
