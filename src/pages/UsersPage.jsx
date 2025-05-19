@@ -6,6 +6,8 @@ const UsersPage = () => {
   const [users, setUsers] = useState([]);
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     fetchUsers();
@@ -14,8 +16,6 @@ const UsersPage = () => {
   const fetchUsers = async () => {
     try {
       const res = await axios.get("/api/admin/users");
-      console.log("📥 사용자 데이터:", res.data.data);
-
       if (res.data.success && Array.isArray(res.data.data)) {
         const usersWithPassword = res.data.data
           .filter((user) => user.email !== "admin@admin.com")
@@ -52,7 +52,11 @@ const UsersPage = () => {
 
       if (res.data.success) {
         alert("삭제 성공: " + res.data.message);
-        setUsers(users.filter((user) => user.userId !== deleteTargetId));
+        const updatedUsers = users.filter((user) => user.userId !== deleteTargetId);
+        setUsers(updatedUsers);
+        // 현재 페이지에 사용자 수가 0이 되면 이전 페이지로 이동
+        const lastPage = Math.ceil(updatedUsers.length / itemsPerPage);
+        if (currentPage > lastPage) setCurrentPage(lastPage);
       } else {
         alert("삭제 실패: " + (res.data.message || "알 수 없는 오류"));
       }
@@ -64,13 +68,20 @@ const UsersPage = () => {
     }
   };
 
+  const getPaginatedUsers = () => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return users.slice(startIndex, startIndex + itemsPerPage);
+  };
+
+  const totalPages = Math.ceil(users.length / itemsPerPage);
+
   return (
     <Wrapper>
       <Title>사용자 관리</Title>
       <Table>
         <thead>
           <tr>
-            <Th>USERID</Th>
+            <Th>NO</Th>
             <Th>NICKNAME</Th>
             <Th>EMAIL</Th>
             <Th>PASSWORD</Th>
@@ -78,9 +89,9 @@ const UsersPage = () => {
           </tr>
         </thead>
         <tbody>
-          {users.map((user) => (
+          {getPaginatedUsers().map((user) => (
             <tr key={user.email}>
-              <Td>{user.userId ?? "-"}</Td>
+              <Td>{(currentPage - 1) * itemsPerPage + index + 1}</Td>
               <Td>{user.userNickname}</Td>
               <Td>{user.email}</Td>
               <Td>{user.password}</Td>
@@ -99,6 +110,31 @@ const UsersPage = () => {
         </tbody>
       </Table>
 
+      {/* 페이지네이션 버튼 */}
+      <Pagination>
+        <PageButton
+          disabled={currentPage === 1}
+          onClick={() => setCurrentPage(currentPage - 1)}
+        >
+          이전
+        </PageButton>
+        {[...Array(totalPages)].map((_, index) => (
+          <PageNumber
+            key={index}
+            isActive={index + 1 === currentPage}
+            onClick={() => setCurrentPage(index + 1)}
+          >
+            {index + 1}
+          </PageNumber>
+        ))}
+        <PageButton
+          disabled={currentPage === totalPages}
+          onClick={() => setCurrentPage(currentPage + 1)}
+        >
+          다음
+        </PageButton>
+      </Pagination>
+
       {showConfirm && (
         <ConfirmBackdrop>
           <ConfirmModal>
@@ -116,6 +152,9 @@ const UsersPage = () => {
 };
 
 export default UsersPage;
+
+// ✅ Styled Components
+
 const Wrapper = styled.div`
   padding: 40px 80px;
   background: #fff;
@@ -215,3 +254,29 @@ const ConfirmButton = styled.button`
   font-weight: 600;
   cursor: pointer;
 `;
+
+const Pagination = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 20px;
+`;
+
+const PageButton = styled.button`
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #eee;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+const PageNumber = styled(PageButton)`
+  background: ${(props) => (props.isActive ? "#6b4eff" : "#eee")};
+  color: ${(props) => (props.isActive ? "white" : "black")};
+`;
+
