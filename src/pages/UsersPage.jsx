@@ -54,8 +54,7 @@ const UsersPage = () => {
         alert("삭제 성공: " + res.data.message);
         const updatedUsers = users.filter((user) => user.userId !== deleteTargetId);
         setUsers(updatedUsers);
-        // 현재 페이지에 사용자 수가 0이 되면 이전 페이지로 이동
-        const lastPage = Math.ceil(updatedUsers.length / itemsPerPage);
+        const lastPage = Math.max(1, Math.ceil(updatedUsers.length / itemsPerPage));
         if (currentPage > lastPage) setCurrentPage(lastPage);
       } else {
         alert("삭제 실패: " + (res.data.message || "알 수 없는 오류"));
@@ -89,8 +88,8 @@ const UsersPage = () => {
           </tr>
         </thead>
         <tbody>
-          {getPaginatedUsers().map((user) => (
-            <tr key={user.email}>
+          {getPaginatedUsers().map((user, index) => (
+            <tr key={user.userId}>
               <Td>{(currentPage - 1) * itemsPerPage + index + 1}</Td>
               <Td>{user.userNickname}</Td>
               <Td>{user.email}</Td>
@@ -110,7 +109,6 @@ const UsersPage = () => {
         </tbody>
       </Table>
 
-      {/* 페이지네이션 버튼 */}
       <Pagination>
         <PageButton
           disabled={currentPage === 1}
@@ -153,7 +151,7 @@ const UsersPage = () => {
 
 export default UsersPage;
 
-// ✅ Styled Components
+// Styled Components
 
 const Wrapper = styled.div`
   padding: 40px 80px;
@@ -279,4 +277,3 @@ const PageNumber = styled(PageButton)`
   background: ${(props) => (props.isActive ? "#6b4eff" : "#eee")};
   color: ${(props) => (props.isActive ? "white" : "black")};
 `;
-

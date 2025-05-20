@@ -9,10 +9,10 @@ import AiPage from "./pages/AiPage";
 import AidataPage from "./pages/AidataPage";
 import AlertsPage from "./pages/AlertsPage";
 import UpdatePage from "./pages/UpdatePage";
-import PrivateRoute from "./components/PrivateRoute";
 
 function AppWrapper() {
   const location = useLocation();
+
   const hideNavbar = location.pathname === "/";
 
   return (
@@ -20,54 +20,12 @@ function AppWrapper() {
       {!hideNavbar && <Navbar />}
       <Routes>
         <Route path="/" element={<StartPage />} />
-        <Route
-          path="/users"
-          element={
-            <PrivateRoute>
-              <UsersPage />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/monitoring"
-          element={
-            <PrivateRoute>
-              <MonitoringPage />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/ai"
-          element={
-            <PrivateRoute>
-              <AiPage />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/aidata"
-          element={
-            <PrivateRoute>
-              <AidataPage />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/alerts"
-          element={
-            <PrivateRoute>
-              <AlertsPage />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/updates"
-          element={
-            <PrivateRoute>
-              <UpdatePage />
-            </PrivateRoute>
-          }
-        />
+        <Route path="/users" element={<UsersPage />} />
+        <Route path="/monitoring" element={<MonitoringPage />} />
+        <Route path="/ai" element={<AiPage />} />
+        <Route path="/aidata" element={<AidataPage />} />
+        <Route path="/alerts" element={<AlertsPage />} />
+        <Route path="/updates" element={<UpdatePage />} />
       </Routes>
     </>
   );
