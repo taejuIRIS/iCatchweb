@@ -34,23 +34,17 @@ const AIPage = () => {
         <AIReports />
       </Section>
 
-      <FlexSection>
-        <Column>
+      
+        <Section>
         <SectionTitle>모델 교체</SectionTitle>
-        <SubText>현재 사용 중인 모델을 업로드한 모델로 교체합니다.</SubText>
+        <SubText>IP 할당 후 해당 기기에서 현재 사용 중인 모델을 선택한 모델로 교체합니다.</SubText>
         <ModelChange onNavigateToVersion={handleModelChangeComplete} />
-        </Column>
+       </Section>
 
 
 
-        <Column>
-        <SectionTitle>모델 버전 확인</SectionTitle>
-        <SubText>
-          현재 사용중인 모델 및 이전 모델의 버전을 확인 가능합니다.
-        </SubText>
-        <AiVersion />
-        </Column>
-      </FlexSection>
+       
+      
     </Wrapper>
   );
 };

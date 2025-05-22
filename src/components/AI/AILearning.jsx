@@ -54,14 +54,25 @@ useEffect(() => {
 
 
 
-  const handleTraining = async () => {
-    const requestBody = {
-      model,
-      imgs: imageSize.toString(),
-      epochs: epoch,
-      batchsize: batchSize,
-      modelname: modelName,
-    };
+const handleTraining = async () => {
+  // 1. 버전명 유효성 검사
+  const versionMatch = modelName.match(/(\d+\.\d+v)/);
+  if (!versionMatch) {
+    alert("모델명에 버전명이 포함되어야 합니다. 예: EyeCatch_0.01v");
+    return;
+  }
+
+  const requestBody = {
+    model,
+    imgs: imageSize.toString(),
+    epochs: epoch,
+    batchsize: batchSize,
+    modelname: modelName,
+  };
+
+  setIsTraining(true);
+  // ↓ 이후 기존 코드 계속 진행
+
 
 
 
@@ -189,7 +200,7 @@ const handleStopTraining = async () => {
           <Field>
             <Label>모델 명</Label>
             <Input value={modelName} onChange={(e) => setModelName(e.target.value)} />
-            <SubLabel>모델 명을 지정합니다.</SubLabel>
+            <SubLabel>모델명에는 반드시 버전명이 포함되어야 합니다. 예: EyeCatch_0.01v)</SubLabel>
           </Field>
 
           <Field />

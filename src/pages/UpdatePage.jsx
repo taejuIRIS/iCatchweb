@@ -31,7 +31,10 @@ export default function UpdatePage() {
 
   return (
     <Wrapper>
-      <Title>업데이트 관리</Title>
+      <Title>모델 버전 모니터링</Title>
+      <SubText>
+          기기에 업데이트되는 모델의 버전 정보를 확인할 수 있습니다.
+        </SubText>
       <Table>
         <thead>
           <tr>
@@ -66,6 +69,12 @@ const Title = styled.h1`
   font-size: 32px;
   font-weight: bold;
   margin-bottom: 24px;
+`;
+
+const SubText = styled.p`
+  color: #757575;
+  font-size: 16px;
+  margin-bottom: 16px;
 `;
 
 const Table = styled.table`

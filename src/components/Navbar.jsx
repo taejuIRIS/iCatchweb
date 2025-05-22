@@ -12,7 +12,6 @@ const Navbar = () => {
     { label: "디바이스 모니터링", path: "/monitoring" },
     { label: "AI 관리", path: "/ai" },
     { label: "알림 관리", path: "/alerts" },
-    { label: "업데이트 관리", path: "/updates" },
   ];
 
   const handleLogout = () => {
@@ -39,6 +38,9 @@ const Navbar = () => {
           </DropdownItem>
           <DropdownItem onClick={() => navigate("/aidata")}>
             데이터 관리
+          </DropdownItem>
+          <DropdownItem onClick={() => navigate("/updates")}>
+            모델 버전 모니터링
           </DropdownItem>
         </DropdownMenu>
       </DropdownWrapper>
@@ -132,9 +134,11 @@ const DropdownMenu = styled.div`
   background-color: white;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
+  border:2px solid #6b4eff;
   z-index: 100;
   min-width: 140px;
   padding: 8px 0;
+  color: #6b4eff;
 `;
 
 const DropdownItem = styled.div`
