@@ -75,7 +75,7 @@ const handleConfirmYes = async () => {
   }
 
   const formData = new FormData();
-  formData.append("file", selectedFile);
+  formData.append("model", selectedFile);
 
   try {
     // 1. 디바이스로 모델 전송
