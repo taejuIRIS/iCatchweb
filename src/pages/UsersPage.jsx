@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import axios from "axios";
 
-const UsersPage = () => {
+const UsersPage = () => { 
   const [users, setUsers] = useState([]);
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState(null);
