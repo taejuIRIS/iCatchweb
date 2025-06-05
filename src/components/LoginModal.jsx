@@ -35,9 +35,7 @@ const LoginModal = ({ onClose }) => {
         alert("로그인 실패: 서버 응답이 예상과 다릅니다.");
       }
     } catch (error) {
-      const message =
-        error.response?.data?.data?.message || "서버 연결에 실패했습니다.";
-      alert(`로그인 실패: ${message}`);
+      alert(`로그인 실패하였습니다!`);
     }
   };
 
